@@ -1,4 +1,10 @@
-import type { AccountStatus, LandmarkStatus, SubscriptionTier, TripStatus } from "@/types/taxiya";
+import type {
+  AccountStatus,
+  LandmarkStatus,
+  SubscriptionTier,
+  TicketStatus,
+  TripStatus,
+} from "@/types/taxiya";
 
 const AR_TIMEZONE = "America/Argentina/Catamarca";
 
@@ -125,20 +131,39 @@ export function formatLandmarkStatus(status: LandmarkStatus): string {
 
 export function formatTripStatus(status: TripStatus): string {
   switch (status) {
+    case "searching":
     case "requested":
-      return "Solicitado";
+      return "Buscando taxi";
     case "accepted":
       return "Aceptado";
     case "arriving":
       return "En camino al origen";
+    case "in_door":
+      return "En la puerta";
     case "in_progress":
       return "En curso";
     case "waiting":
+    case "waiting_return":
       return "En espera (ida y vuelta)";
     case "completed":
       return "Completado";
     case "cancelled":
       return "Cancelado";
+  }
+}
+
+export function formatTicketStatus(status: TicketStatus): string {
+  switch (status) {
+    case "open":
+      return "Abierto";
+    case "in_review":
+      return "En revisión";
+    case "in_progress":
+      return "En proceso";
+    case "resolved":
+      return "Resuelto";
+    case "closed":
+      return "Cerrado";
   }
 }
 

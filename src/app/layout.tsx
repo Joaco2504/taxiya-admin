@@ -20,9 +20,9 @@ export const metadata: Metadata = {
   description:
     "Panel operativo de TaxiYa para habilitación de choferes, moderación de puntos de referencia, mapa en vivo y publicidad local en Catamarca.",
   icons: {
-    icon: "/brand/TaxiYa_admin_favicon.png",
-    shortcut: "/brand/TaxiYa_admin_favicon.png",
-    apple: "/brand/TaxiYa_admin_favicon.png",
+    icon: "/brand/TaxiYa_admin_favicon.png?v=2",
+    shortcut: "/brand/TaxiYa_admin_favicon.png?v=2",
+    apple: "/brand/TaxiYa_admin_favicon.png?v=2",
   },
 };
 

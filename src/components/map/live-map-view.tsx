@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { createClient } from "@/lib/supabase/client";
-import { formatDateTimeAR, formatTripStatus } from "@/lib/format";
+import { formatDateTimeAR, formatTicketStatus, formatTripStatus } from "@/lib/format";
 import { useLocality } from "@/components/providers/locality-provider";
 import { useEmergencies } from "@/components/providers/emergency-provider";
 import { Badge } from "@/components/ui/badge";
@@ -54,7 +54,16 @@ export function LiveMapView() {
       supabase
         .from("trips")
         .select("*")
-        .in("status", ["requested", "accepted", "arriving", "in_progress", "waiting"])
+        .in("status", [
+          "searching",
+          "requested",
+          "accepted",
+          "arriving",
+          "in_door",
+          "in_progress",
+          "waiting",
+          "waiting_return",
+        ])
         .order("created_at", { ascending: false }),
       supabase
         .from("support_tickets")
@@ -320,7 +329,9 @@ export function LiveMapView() {
                       <p className="text-sm">
                         {ticket.description || "Ticket abierto sin descripción."}
                       </p>
-                      {ticket.status === "open" || ticket.status === "in_progress" ? (
+                      {ticket.status === "open" ||
+                      ticket.status === "in_review" ||
+                      ticket.status === "in_progress" ? (
                         <Button
                           size="sm"
                           variant={ticket.is_emergency ? "destructive" : "outline"}
@@ -330,7 +341,9 @@ export function LiveMapView() {
                           Marcar resuelto
                         </Button>
                       ) : (
-                        <span className="text-xs text-muted-foreground">Estado: {ticket.status}</span>
+                        <span className="text-xs text-muted-foreground">
+                          Estado: {formatTicketStatus(ticket.status)}
+                        </span>
                       )}
                     </div>
                   ))}

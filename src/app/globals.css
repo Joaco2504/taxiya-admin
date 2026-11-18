@@ -148,3 +148,94 @@
     scrollbar-color: var(--muted-foreground) var(--background);
   }
 }
+
+/* Tablas responsivas accesibles (@container + encabezados fijos y tarjetas móviles) */
+.taxiya-responsive-table-wrap {
+  overflow: auto;
+  max-inline-size: 100%;
+  max-block-size: min(620px, 75vh);
+  container-type: inline-size;
+}
+
+.taxiya-responsive-table-wrap table {
+  border-collapse: separate;
+  border-spacing: 0;
+  width: 100%;
+}
+
+.taxiya-responsive-table-wrap thead {
+  position: sticky;
+  inset-block-start: 0;
+  z-index: 2;
+  background: var(--card);
+}
+
+.taxiya-responsive-table-wrap tbody th {
+  position: sticky;
+  inset-inline-start: 0;
+  z-index: 1;
+  background: var(--card);
+  text-align: left;
+}
+
+@container (width < 600px) {
+  .taxiya-responsive-table-wrap table,
+  .taxiya-responsive-table-wrap thead,
+  .taxiya-responsive-table-wrap tbody,
+  .taxiya-responsive-table-wrap tr,
+  .taxiya-responsive-table-wrap th,
+  .taxiya-responsive-table-wrap td {
+    display: block;
+  }
+
+  .taxiya-responsive-table-wrap thead {
+    display: none;
+  }
+
+  .taxiya-responsive-table-wrap tbody tr {
+    margin-block-end: 0.75rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    background: var(--card);
+  }
+
+  .taxiya-responsive-table-wrap tbody th {
+    position: sticky;
+    inset-block-start: 0;
+    z-index: 2;
+    background: var(--muted);
+    padding: 0.65rem 0.75rem;
+  }
+
+  .taxiya-responsive-table-wrap tbody td {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.5rem 0.75rem;
+    border-top: 1px solid var(--border);
+  }
+
+  .taxiya-responsive-table-wrap tbody td::before {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--muted-foreground);
+  }
+
+  .taxiya-responsive-table-wrap tbody td:nth-child(2)::before {
+    content: var(--label-2, "Detalle") ": ";
+  }
+  .taxiya-responsive-table-wrap tbody td:nth-child(3)::before {
+    content: var(--label-3, "Zona") ": ";
+  }
+  .taxiya-responsive-table-wrap tbody td:nth-child(4)::before {
+    content: var(--label-4, "Fecha") ": ";
+  }
+  .taxiya-responsive-table-wrap tbody td:nth-child(5)::before {
+    content: var(--label-5, "Estado") ": ";
+  }
+  .taxiya-responsive-table-wrap tbody td:nth-child(6)::before {
+    content: var(--label-6, "Acción") ": ";
+  }
+}

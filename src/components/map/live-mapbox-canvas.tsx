@@ -13,7 +13,7 @@ import { useTheme } from "next-themes";
 import { AlertTriangleIcon, CarTaxiFrontIcon, NavigationIcon } from "lucide-react";
 import { MAPBOX_TOKEN } from "@/lib/supabase/config";
 import { getLocalityViewport, parsePostGISPoint } from "@/lib/postgis";
-import { formatDateTimeAR, formatTripStatus } from "@/lib/format";
+import { formatDateTimeAR, formatTicketStatus, formatTripStatus } from "@/lib/format";
 import { Badge } from "@/components/ui/badge";
 import type {
   DriverWithProfile,
@@ -340,7 +340,9 @@ export function LiveMapboxCanvas({
                     <span className="font-semibold text-sm text-destructive">
                       Alerta de emergencia
                     </span>
-                    <Badge variant="destructive">{selectedPin.ticket.status}</Badge>
+                    <Badge variant="destructive">
+                      {formatTicketStatus(selectedPin.ticket.status)}
+                    </Badge>
                   </div>
                   <p className="text-xs">
                     {selectedPin.ticket.description || "Sin detalle adicional."}

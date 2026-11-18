@@ -6,14 +6,17 @@ export type SubscriptionTier = "free" | "no_ads" | "premium";
 
 export type LandmarkStatus = "pending" | "approved" | "rejected";
 
-export type TicketStatus = "open" | "in_progress" | "resolved" | "closed";
+export type TicketStatus = "open" | "in_review" | "in_progress" | "resolved" | "closed";
 
 export type TripStatus =
+  | "searching"
   | "requested"
   | "accepted"
   | "arriving"
+  | "in_door"
   | "in_progress"
   | "waiting"
+  | "waiting_return"
   | "completed"
   | "cancelled";
 
@@ -117,6 +120,7 @@ export type Trip = {
   dest_address: string | null;
   dest_point: unknown;
   is_round_trip: boolean;
+  wait_minutes: number | null;
   scheduled_for: string | null;
   cancel_reason: string | null;
   cancelled_by: string | null;

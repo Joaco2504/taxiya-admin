@@ -9,6 +9,7 @@ import {
   BarChart3Icon,
   Building2Icon,
   CheckCircle2Icon,
+  LifeBuoyIcon,
   LogOutIcon,
   MapIcon,
   MapPinIcon,
@@ -58,6 +59,7 @@ const NAV_ITEMS = [
   { href: "/puntos", label: "Puntos de referencia", icon: MapPinIcon },
   { href: "/estadisticas", label: "Estadísticas", icon: BarChart3Icon },
   { href: "/publicidad", label: "Publicidad local", icon: MegaphoneIcon },
+  { href: "/soporte", label: "Soporte y reclamos", icon: LifeBuoyIcon },
   { href: "/empresas", label: "Empresas de taxis", icon: Building2Icon },
 ] as const;
 
@@ -313,6 +315,11 @@ export function AdminShell({
                   {pathname !== "/" ? (
                     <Button size="sm" variant="outline" asChild>
                       <Link href="/">Ver en el mapa</Link>
+                    </Button>
+                  ) : null}
+                  {pathname !== "/soporte" ? (
+                    <Button size="sm" variant="outline" asChild>
+                      <Link href="/soporte">Abrir reclamos</Link>
                     </Button>
                   ) : null}
                   <Button

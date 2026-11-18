@@ -23,7 +23,7 @@ async function fetchOpenEmergencies(): Promise<SupportTicket[] | null> {
     .from("support_tickets")
     .select("*")
     .eq("is_emergency", true)
-    .in("status", ["open", "in_progress"])
+    .in("status", ["open", "in_review", "in_progress"])
     .order("created_at", { ascending: false });
 
   if (error || !data) return null;
