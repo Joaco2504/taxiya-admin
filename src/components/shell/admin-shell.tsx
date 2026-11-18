@@ -26,6 +26,7 @@ import { formatDateTimeAR } from "@/lib/format";
 import { useLocality } from "@/components/providers/locality-provider";
 import { useEmergencies } from "@/components/providers/emergency-provider";
 import { CompanyManagerDialog } from "@/components/shell/company-manager-dialog";
+import { AdminBrandLogo } from "@/components/shell/admin-brand-logo";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -136,9 +137,7 @@ export function AdminShell({
       {/* Sidebar fijo en escritorio */}
       <aside className="hidden w-64 shrink-0 flex-col border-r border-border bg-card lg:flex">
         <div className="flex h-16 items-center gap-3 border-b border-border px-4">
-          <div className="flex size-9 items-center justify-center rounded-lg bg-primary text-primary-foreground font-bold text-sm">
-            TY
-          </div>
+          <AdminBrandLogo size={36} />
           <div className="flex flex-col">
             <span className="text-sm font-semibold leading-none">TaxiYa Admin</span>
             <span className="text-xs text-muted-foreground mt-1">Operaciones Catamarca</span>
@@ -178,7 +177,10 @@ export function AdminShell({
               </SheetTrigger>
               <SheetContent side="left" className="w-68 p-4">
                 <SheetHeader className="pb-4">
-                  <SheetTitle>TaxiYa Admin</SheetTitle>
+                  <SheetTitle className="flex items-center gap-2.5">
+                    <AdminBrandLogo size={30} />
+                    <span>TaxiYa Admin</span>
+                  </SheetTitle>
                 </SheetHeader>
                 {renderNavLinks(() => setMobileMenuOpen(false))}
               </SheetContent>

@@ -19,6 +19,11 @@ export const metadata: Metadata = {
   title: "TaxiYa Admin — Belén y Andalgalá",
   description:
     "Panel operativo de TaxiYa para habilitación de choferes, moderación de puntos de referencia, mapa en vivo y publicidad local en Catamarca.",
+  icons: {
+    icon: "/brand/TaxiYa_admin_favicon.png",
+    shortcut: "/brand/TaxiYa_admin_favicon.png",
+    apple: "/brand/TaxiYa_admin_favicon.png",
+  },
 };
 
 export default function RootLayout({

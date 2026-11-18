@@ -11,6 +11,7 @@ import { Field, FieldDescription, FieldGroup, FieldLabel } from "@/components/ui
 import { Input } from "@/components/ui/input";
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group";
 import { Spinner } from "@/components/ui/spinner";
+import { AdminBrandLogo } from "@/components/shell/admin-brand-logo";
 
 export function LoginForm({ initialReason }: { initialReason?: string }) {
   const router = useRouter();
@@ -86,11 +87,9 @@ export function LoginForm({ initialReason }: { initialReason?: string }) {
     <Card className="w-full max-w-md border-border bg-card shadow-sm">
       <CardHeader className="gap-2">
         <div className="flex items-center gap-3">
-          <div className="flex size-10 items-center justify-center rounded-lg bg-primary text-primary-foreground font-bold">
-            TY
-          </div>
+          <AdminBrandLogo size={40} />
           <div className="flex flex-col">
-            <CardTitle className="text-xl">TaxiYa Admin</CardTitle>
+            <CardTitle className="text-xl">Iniciar sesión</CardTitle>
             <CardDescription>Belén y Andalgalá · Catamarca</CardDescription>
           </div>
         </div>
