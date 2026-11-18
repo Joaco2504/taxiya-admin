@@ -16,6 +16,8 @@ import {
   MegaphoneIcon,
   MenuIcon,
   MoonIcon,
+  PanelLeftCloseIcon,
+  PanelLeftOpenIcon,
   SunIcon,
   UsersIcon,
   Volume2Icon,
@@ -74,6 +76,7 @@ export function AdminShell({
   const router = useRouter();
   const { resolvedTheme, setTheme } = useTheme();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [companiesOpen, setCompaniesOpen] = useState(false);
   const mounted = useSyncExternalStore(
     () => () => {},
@@ -136,8 +139,13 @@ export function AdminShell({
 
   return (
     <div className="flex min-h-screen bg-background text-foreground">
-      {/* Sidebar fijo en escritorio */}
-      <aside className="hidden w-64 shrink-0 flex-col border-r border-border bg-card lg:flex">
+      {/* Sidebar fijo y plegable en escritorio */}
+      <aside
+        className={cn(
+          "sticky top-0 h-dvh shrink-0 overflow-y-auto hidden flex-col border-border bg-card transition-[width] duration-200 lg:flex",
+          sidebarCollapsed ? "w-0 overflow-hidden border-r-0" : "w-64 border-r"
+        )}
+      >
         <div className="flex h-16 items-center gap-3 border-b border-border px-4">
           <AdminBrandLogo size={36} />
           <div className="flex flex-col">
@@ -187,6 +195,18 @@ export function AdminShell({
                 {renderNavLinks(() => setMobileMenuOpen(false))}
               </SheetContent>
             </Sheet>
+
+            <Button
+              type="button"
+              variant="outline"
+              size="icon"
+              className="hidden lg:inline-flex"
+              aria-label={sidebarCollapsed ? "Mostrar menú lateral" : "Ocultar menú lateral"}
+              title={sidebarCollapsed ? "Mostrar menú lateral" : "Ocultar menú lateral"}
+              onClick={() => setSidebarCollapsed((prev) => !prev)}
+            >
+              {sidebarCollapsed ? <PanelLeftOpenIcon /> : <PanelLeftCloseIcon />}
+            </Button>
 
             {/* Selector global de localidad */}
             <div className="flex items-center gap-2">

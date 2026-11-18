@@ -14,6 +14,7 @@ import {
 import { toast } from "sonner";
 import { createClient } from "@/lib/supabase/client";
 import { formatDateTimeAR, formatTicketStatus, formatTripStatus } from "@/lib/format";
+import { dedupeActiveDriverBadges } from "@/lib/badges";
 import { useLocality } from "@/components/providers/locality-provider";
 import { useEmergencies } from "@/components/providers/emergency-provider";
 import { Badge } from "@/components/ui/badge";
@@ -22,6 +23,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/components/ui/empty";
 import { Skeleton } from "@/components/ui/skeleton";
 import type {
+  DriverBadge,
   DriverDetails,
   DriverWithProfile,
   Profile,
@@ -48,7 +50,7 @@ export function LiveMapView() {
 
   const loadLiveState = useCallback(async () => {
     const supabase = createClient();
-    const [drvRes, profRes, tripRes, tickRes] = await Promise.all([
+    const [drvRes, profRes, tripRes, tickRes, badgeRes] = await Promise.all([
       supabase.from("driver_details").select("*").eq("is_online", true),
       supabase.from("profiles").select("*").eq("role", "driver"),
       supabase
@@ -70,6 +72,7 @@ export function LiveMapView() {
         .select("*")
         .order("created_at", { ascending: false })
         .limit(15),
+      supabase.from("driver_badges").select("*"),
     ]);
 
     if (drvRes.error) {
@@ -79,6 +82,12 @@ export function LiveMapView() {
     const profilesById = new Map<string, Profile>(
       ((profRes.data ?? []) as Profile[]).map((p) => [p.id, p])
     );
+    const badgesByDriverId = new Map<string, DriverBadge[]>();
+    for (const row of (badgeRes.data ?? []) as DriverBadge[]) {
+      const list = badgesByDriverId.get(row.driver_id) ?? [];
+      list.push(row);
+      badgesByDriverId.set(row.driver_id, list);
+    }
     const companiesById = new Map(companies.map((c) => [c.id, c]));
     const localitiesById = new Map(localities.map((l) => [l.id, l]));
 
@@ -92,6 +101,7 @@ export function LiveMapView() {
           locality: profile?.locality_id
             ? localitiesById.get(profile.locality_id) ?? null
             : null,
+          badges: dedupeActiveDriverBadges(badgesByDriverId.get(d.user_id) ?? []),
         };
       }
     );
@@ -131,6 +141,13 @@ export function LiveMapView() {
         () => {
           void loadLiveState();
           void refreshEmergencies();
+        }
+      )
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "taxiya", table: "driver_badges" },
+        () => {
+          void loadLiveState();
         }
       )
       .subscribe();

@@ -67,7 +67,7 @@
   --secondary: #0284C7;
   --secondary-foreground: #FFFFFF;
   --muted: #F1F5F9;
-  --muted-foreground: #475569;
+  --muted-foreground: #334155;
   --accent: #F1F5F9;
   --accent-foreground: #0F172A;
   --destructive: #DC2626;
@@ -76,7 +76,7 @@
   --success-foreground: #FFFFFF;
   --warning: #EA580C;
   --warning-foreground: #FFFFFF;
-  --border: #E2E8F0;
+  --border: #CBD5E1;
   --input: #CBD5E1;
   --ring: #F59E0B;
   --chart-1: #F59E0B;
@@ -91,7 +91,7 @@
   --sidebar-primary-foreground: #0F172A;
   --sidebar-accent: #F1F5F9;
   --sidebar-accent-foreground: #0F172A;
-  --sidebar-border: #E2E8F0;
+  --sidebar-border: #CBD5E1;
   --sidebar-ring: #F59E0B;
 }
 
@@ -238,4 +238,57 @@
   .taxiya-responsive-table-wrap tbody td:nth-child(6)::before {
     content: var(--label-6, "Acción") ": ";
   }
+}
+
+/* Mapbox GL Popups adaptados a tema claro (#FFFFFF / #0F172A) y oscuro (#151C2C / #F1F5F9) */
+.mapboxgl-popup-content {
+  background: var(--card) !important;
+  color: var(--card-foreground) !important;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg) !important;
+  padding: 0.75rem 0.9rem !important;
+  box-shadow: 0 10px 25px -5px rgb(0 0 0 / 0.25) !important;
+}
+
+.mapboxgl-popup-anchor-top .mapboxgl-popup-tip {
+  border-bottom-color: var(--card) !important;
+}
+.mapboxgl-popup-anchor-top-left .mapboxgl-popup-tip {
+  border-bottom-color: var(--card) !important;
+}
+.mapboxgl-popup-anchor-top-right .mapboxgl-popup-tip {
+  border-bottom-color: var(--card) !important;
+}
+.mapboxgl-popup-anchor-bottom .mapboxgl-popup-tip {
+  border-top-color: var(--card) !important;
+}
+.mapboxgl-popup-anchor-bottom-left .mapboxgl-popup-tip {
+  border-top-color: var(--card) !important;
+}
+.mapboxgl-popup-anchor-bottom-right .mapboxgl-popup-tip {
+  border-top-color: var(--card) !important;
+}
+.mapboxgl-popup-anchor-left .mapboxgl-popup-tip {
+  border-right-color: var(--card) !important;
+}
+.mapboxgl-popup-anchor-right .mapboxgl-popup-tip {
+  border-left-color: var(--card) !important;
+}
+
+.mapboxgl-popup-close-button {
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
+  color: var(--muted-foreground) !important;
+  font-size: 1.05rem;
+  line-height: 1;
+  padding: 4px 7px !important;
+  border-radius: 6px;
+}
+
+.mapboxgl-popup-close-button:hover,
+.mapboxgl-popup-close-button:focus-visible {
+  background: var(--accent) !important;
+  color: var(--foreground) !important;
 }

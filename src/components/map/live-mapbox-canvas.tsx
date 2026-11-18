@@ -14,6 +14,7 @@ import { AlertTriangleIcon, CarTaxiFrontIcon, NavigationIcon } from "lucide-reac
 import { MAPBOX_TOKEN } from "@/lib/supabase/config";
 import { getLocalityViewport, parsePostGISPoint } from "@/lib/postgis";
 import { formatDateTimeAR, formatTicketStatus, formatTripStatus } from "@/lib/format";
+import { DriverBadgePill } from "@/components/badges/badge-medal";
 import { Badge } from "@/components/ui/badge";
 import type {
   DriverWithProfile,
@@ -148,7 +149,26 @@ export function LiveMapboxCanvas({
   const mapStyle =
     resolvedTheme === "dark"
       ? "mapbox://styles/mapbox/dark-v11"
-      : "mapbox://styles/mapbox/light-v11";
+      : "mapbox://styles/mapbox/streets-v12";
+
+  const operationalStatusByDriver = useMemo(() => {
+    const map = new globalThis.Map<string, string>();
+    for (const trip of trips) {
+      if (!trip.driver_id) continue;
+      if (trip.status === "accepted" || trip.status === "arriving") {
+        map.set(trip.driver_id, "En camino al pasajero");
+      } else if (trip.status === "in_door") {
+        map.set(trip.driver_id, "En puerta");
+      } else if (
+        trip.status === "in_progress" ||
+        trip.status === "waiting" ||
+        trip.status === "waiting_return"
+      ) {
+        map.set(trip.driver_id, "En viaje activo");
+      }
+    }
+    return map;
+  }, [trips]);
 
   if (!MAPBOX_TOKEN) {
     return (
@@ -244,11 +264,13 @@ export function LiveMapboxCanvas({
               <button
                 type="button"
                 aria-label={`Taxi ${driver.profile?.full_name || driver.plate_number || "en línea"}`}
-                className="flex items-center gap-1 rounded-full border-2 border-background px-2 py-1 text-[11px] font-semibold text-white shadow-md transition-transform hover:scale-105"
+                className="flex items-center gap-1.5 rounded-full border-2 border-background px-2.5 py-1 text-[11px] font-semibold text-white shadow-md transition-transform hover:scale-105"
                 style={{ backgroundColor: color }}
               >
-                <CarTaxiFrontIcon className="size-3.5" />
-                <span>{driver.plate_number || "Taxi"}</span>
+                <CarTaxiFrontIcon className="size-3.5 shrink-0" />
+                <span className="max-w-28 truncate">
+                  {driver.profile?.full_name || "Chofer TaxiYa"}
+                </span>
               </button>
             </Marker>
           );
@@ -289,10 +311,10 @@ export function LiveMapboxCanvas({
             closeOnClick={false}
             onClose={() => setSelectedPin(null)}
           >
-            <div className="flex min-w-52 flex-col gap-1.5 p-1 text-foreground">
+            <div className="flex min-w-56 max-w-72 flex-col gap-1.5 text-card-foreground">
               {selectedPin.type === "driver" && selectedPin.driver ? (
                 <>
-                  <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center justify-between gap-2 pr-4">
                     <span className="font-semibold text-sm">
                       {selectedPin.driver.profile?.full_name || "Chofer sin nombre"}
                     </span>
@@ -302,15 +324,31 @@ export function LiveMapboxCanvas({
                         : "Independiente"}
                     </Badge>
                   </div>
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-xs font-medium text-foreground">
                     {[
                       selectedPin.driver.car_brand,
                       selectedPin.driver.car_model,
-                      selectedPin.driver.plate_number,
+                      selectedPin.driver.car_color,
                     ]
                       .filter(Boolean)
                       .join(" · ") || "Vehículo sin datos"}
                   </p>
+                  <p className="text-xs font-mono text-muted-foreground">
+                    Patente: {selectedPin.driver.plate_number || "Sin patente"}
+                  </p>
+                  <div className="flex items-center gap-1.5 pt-0.5">
+                    <Badge variant="outline">
+                      {operationalStatusByDriver.get(selectedPin.driver.user_id) ??
+                        "Disponible en línea"}
+                    </Badge>
+                  </div>
+                  {selectedPin.driver.badges && selectedPin.driver.badges.length > 0 ? (
+                    <div className="flex flex-wrap gap-1 pt-0.5">
+                      {selectedPin.driver.badges.slice(0, 3).map((b) => (
+                        <DriverBadgePill key={b.id} badge={b} compact />
+                      ))}
+                    </div>
+                  ) : null}
                   <p className="text-xs text-muted-foreground">
                     Último GPS: {formatDateTimeAR(selectedPin.driver.last_location_at)}
                   </p>

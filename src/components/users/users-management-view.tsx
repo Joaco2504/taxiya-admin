@@ -20,7 +20,10 @@ import {
   formatSubscriptionTier,
   getPermitAlertState,
 } from "@/lib/format";
+import { dedupeActiveDriverBadges } from "@/lib/badges";
 import { useLocality } from "@/components/providers/locality-provider";
+import { BadgeConfigsPanel } from "@/components/badges/badge-configs-panel";
+import { DriverBadgePill } from "@/components/badges/badge-medal";
 import { DriverDossierModal } from "@/components/users/driver-dossier-modal";
 import {
   AlertDialog,
@@ -57,6 +60,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type {
   AccountStatus,
+  DriverBadge,
   DriverDetails,
   DriverWithProfile,
   Profile,
@@ -117,13 +121,14 @@ export function UsersManagementView() {
     if (withSpinner) setLoading(true);
     try {
       const supabase = createClient();
-      const [profRes, drvRes] = await Promise.all([
+      const [profRes, drvRes, badgeRes] = await Promise.all([
         supabase
           .from("profiles")
           .select("*")
           .in("role", ["driver", "passenger"])
           .order("created_at", { ascending: false }),
         supabase.from("driver_details").select("*"),
+        supabase.from("driver_badges").select("*"),
       ]);
 
       if (profRes.error) {
@@ -138,6 +143,12 @@ export function UsersManagementView() {
       const detailsByUserId = new Map<string, DriverDetails>(
         ((drvRes.data ?? []) as DriverDetails[]).map((d) => [d.user_id, d])
       );
+      const badgesByDriverId = new Map<string, DriverBadge[]>();
+      for (const row of (badgeRes.data ?? []) as DriverBadge[]) {
+        const list = badgesByDriverId.get(row.driver_id) ?? [];
+        list.push(row);
+        badgesByDriverId.set(row.driver_id, list);
+      }
 
       // Unimos perfiles de taxistas con su detalle (aunque aún no hayan cargado driver_details)
       const mergedDrivers: DriverWithProfile[] = driverProfiles.map((prof) => {
@@ -167,6 +178,7 @@ export function UsersManagementView() {
           profile: prof,
           company: base.company_id ? companyById.get(base.company_id) ?? null : null,
           locality: prof.locality_id ? localityById.get(prof.locality_id) ?? null : null,
+          badges: dedupeActiveDriverBadges(badgesByDriverId.get(prof.id) ?? []),
         };
       });
 
@@ -343,12 +355,15 @@ export function UsersManagementView() {
       </div>
 
       <Tabs defaultValue="drivers" className="flex flex-col gap-4">
-        <TabsList>
+        <TabsList className="flex-wrap">
           <TabsTrigger value="drivers">
             Taxistas ({filteredDrivers.length})
           </TabsTrigger>
           <TabsTrigger value="passengers">
             Pasajeros ({filteredPassengers.length})
+          </TabsTrigger>
+          <TabsTrigger value="badges">
+            Configurar metas e insignias
           </TabsTrigger>
         </TabsList>
 
@@ -436,6 +451,7 @@ export function UsersManagementView() {
                         <TableHead>Localidad</TableHead>
                         <TableHead>Modalidad</TableHead>
                         <TableHead>Vehículo y patente</TableHead>
+                        <TableHead>Insignias</TableHead>
                         <TableHead>Vencimiento habilitación</TableHead>
                         <TableHead>Estado</TableHead>
                         <TableHead className="text-right">Acciones</TableHead>
@@ -476,6 +492,22 @@ export function UsersManagementView() {
                                   {d.plate_number || "Sin patente"}
                                 </span>
                               </div>
+                            </TableCell>
+                            <TableCell>
+                              {d.badges && d.badges.length > 0 ? (
+                                <div className="flex max-w-52 flex-wrap gap-1">
+                                  {d.badges.slice(0, 2).map((b) => (
+                                    <DriverBadgePill key={b.id} badge={b} compact />
+                                  ))}
+                                  {d.badges.length > 2 ? (
+                                    <Badge variant="outline">+{d.badges.length - 2}</Badge>
+                                  ) : null}
+                                </div>
+                              ) : (
+                                <span className="text-xs text-muted-foreground">
+                                  Nivel 0
+                                </span>
+                              )}
                             </TableCell>
                             <TableCell>
                               <div className="flex flex-col gap-1">
@@ -755,6 +787,11 @@ export function UsersManagementView() {
               )}
             </CardContent>
           </Card>
+        </TabsContent>
+
+        {/* PESTAÑA METAS E INSIGNIAS */}
+        <TabsContent value="badges">
+          <BadgeConfigsPanel />
         </TabsContent>
       </Tabs>
 

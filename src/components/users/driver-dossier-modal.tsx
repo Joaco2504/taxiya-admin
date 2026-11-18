@@ -18,6 +18,7 @@ import {
   getPermitAlertState,
   normalizeStoragePath,
 } from "@/lib/format";
+import { DriverBadgePill } from "@/components/badges/badge-medal";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -148,7 +149,7 @@ export function DriverDossierModal({
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="max-h-[90vh] max-w-4xl overflow-y-auto">
+        <DialogContent className="max-h-[90vh] w-full sm:max-w-2xl md:max-w-3xl overflow-y-auto">
           <DialogHeader>
             <div className="flex flex-wrap items-center gap-3">
               <Avatar className="size-11">
@@ -198,39 +199,60 @@ export function DriverDossierModal({
           ) : null}
 
           {/* Datos del chofer y vehículo */}
-          <div className="grid grid-cols-1 gap-3 rounded-lg border border-border bg-background p-4 sm:grid-cols-3 text-sm">
-            <div className="flex flex-col gap-0.5">
+          <div className="grid grid-cols-1 gap-4 rounded-lg border border-border bg-background p-4 sm:grid-cols-2 text-sm">
+            <div className="flex min-w-0 flex-col gap-0.5">
               <span className="text-xs text-muted-foreground">Teléfono</span>
-              <span className="font-medium">{profile?.phone || "No informado"}</span>
+              <span className="font-medium break-words">
+                {profile?.phone || "No informado"}
+              </span>
             </div>
-            <div className="flex flex-col gap-0.5">
+            <div className="flex min-w-0 flex-col gap-0.5">
               <span className="text-xs text-muted-foreground">Correo</span>
-              <span className="font-medium truncate">{profile?.email || "No informado"}</span>
+              <span className="font-medium break-all">
+                {profile?.email || "No informado"}
+              </span>
             </div>
-            <div className="flex flex-col gap-0.5">
+            <div className="flex min-w-0 flex-col gap-0.5">
               <span className="text-xs text-muted-foreground">Modalidad</span>
-              <span className="font-medium">
+              <span className="font-medium break-words">
                 {driver.company ? driver.company.name : "Taxi independiente"}
               </span>
             </div>
-            <div className="flex flex-col gap-0.5">
+            <div className="flex min-w-0 flex-col gap-0.5">
               <span className="text-xs text-muted-foreground">Vehículo</span>
-              <span className="font-medium">
+              <span className="font-medium break-words">
                 {[driver.car_brand, driver.car_model, driver.car_color]
                   .filter(Boolean)
                   .join(" · ") || "Sin cargar"}
               </span>
             </div>
-            <div className="flex flex-col gap-0.5">
+            <div className="flex min-w-0 flex-col gap-0.5">
               <span className="text-xs text-muted-foreground">Patente</span>
-              <span className="font-mono font-semibold">
+              <span className="font-mono font-semibold break-all">
                 {driver.plate_number || "Sin patente"}
               </span>
             </div>
-            <div className="flex flex-col gap-0.5">
+            <div className="flex min-w-0 flex-col gap-0.5">
               <span className="text-xs text-muted-foreground">Vencimiento habilitación</span>
               <span className="font-medium">{formatDateAR(driver.permit_expiry_date)}</span>
             </div>
+          </div>
+
+          <div className="flex flex-col gap-2 rounded-lg border border-border bg-background p-4 text-sm">
+            <span className="text-xs font-medium text-muted-foreground">
+              Insignias y nivel alcanzado
+            </span>
+            {driver.badges && driver.badges.length > 0 ? (
+              <div className="flex flex-wrap gap-2">
+                {driver.badges.map((b) => (
+                  <DriverBadgePill key={b.id} badge={b} />
+                ))}
+              </div>
+            ) : (
+              <span className="text-xs text-muted-foreground">
+                Nivel 0 — Todavía no desbloqueó insignias en su localidad.
+              </span>
+            )}
           </div>
 
           <Separator />

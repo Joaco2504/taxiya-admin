@@ -83,6 +83,31 @@ export type DriverWithProfile = DriverDetails & {
   profile: Profile | null;
   company: TaxiCompany | null;
   locality: Locality | null;
+  badges?: DriverBadge[];
+};
+
+export type BadgeCode =
+  | "punctual"
+  | "local_fav"
+  | "impeccable"
+  | "night_shift"
+  | "veteran";
+
+export type DriverBadge = {
+  id: string;
+  driver_id: string;
+  badge_code: BadgeCode | string;
+  level: number | null;
+  awarded_at: string;
+  expires_at: string | null;
+};
+
+export type BadgeConfig = {
+  id: string;
+  locality_id: string;
+  badge_code: BadgeCode | string;
+  thresholds: number[];
+  updated_at: string;
 };
 
 export type Landmark = {
@@ -178,6 +203,8 @@ export type TaxiyaDatabase = {
       trips: TableEntry<Trip>;
       ratings: TableEntry<Rating>;
       ad_banners: TableEntry<AdBanner>;
+      driver_badges: TableEntry<DriverBadge>;
+      badge_configs: TableEntry<BadgeConfig>;
     };
     Views: Record<string, never>;
     Functions: Record<string, never>;
