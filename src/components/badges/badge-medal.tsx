@@ -40,20 +40,22 @@ export function BadgeArtwork({
   level: number | null | undefined;
   size?: number;
 }) {
-  const [imgError, setImgError] = useState(false);
+  const [failedSrc, setFailedSrc] = useState<string | null>(null);
   const lvl = getBadgeLevelMeta(level);
   const cat = getBadgeCategoryMeta(code);
   const src = getBadgeImagePath(code, lvl.level);
+  const imgError = failedSrc === src;
 
   if (!imgError) {
     return (
       // eslint-disable-next-line @next/next/no-img-element
       <img
+        key={src}
         src={src}
         alt={`${cat?.label ?? code} nivel ${lvl.material}`}
         width={size}
         height={size}
-        onError={() => setImgError(true)}
+        onError={() => setFailedSrc(src)}
         className="shrink-0 object-contain"
         style={{ width: size, height: size }}
       />

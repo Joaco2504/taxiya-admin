@@ -95,6 +95,7 @@ export function UsersManagementView() {
 
   // Filtros Taxistas
   const [driverStatusFilter, setDriverStatusFilter] = useState<string>("all");
+  const [driverTierFilter, setDriverTierFilter] = useState<string>("all");
   const [modalityFilter, setModalityFilter] = useState<string>("all"); // all | company | independent | company:<id>
   const [driverQuery, setDriverQuery] = useState("");
 
@@ -265,6 +266,9 @@ export function UsersManagementView() {
       if (driverStatusFilter !== "all" && prof?.account_status !== driverStatusFilter) {
         return false;
       }
+      if (driverTierFilter !== "all" && (prof?.subscription_tier ?? "free") !== driverTierFilter) {
+        return false;
+      }
       if (modalityFilter === "independent" && d.company_id !== null) {
         return false;
       }
@@ -291,7 +295,7 @@ export function UsersManagementView() {
       }
       return true;
     });
-  }, [drivers, selectedLocalityId, driverStatusFilter, modalityFilter, driverQuery]);
+  }, [drivers, selectedLocalityId, driverStatusFilter, driverTierFilter, modalityFilter, driverQuery]);
 
   const filteredPassengers = useMemo(() => {
     const q = passengerQuery.trim().toLowerCase();
@@ -377,7 +381,7 @@ export function UsersManagementView() {
               </CardDescription>
             </CardHeader>
             <CardContent className="flex flex-col gap-4">
-              <div className="grid grid-cols-1 gap-3 md:grid-cols-4">
+              <div className="grid grid-cols-1 gap-3 md:grid-cols-5">
                 <InputGroup className="md:col-span-2">
                   <InputGroupAddon>
                     <SearchIcon />
@@ -401,6 +405,20 @@ export function UsersManagementView() {
                       <SelectItem value="active">Activos</SelectItem>
                       <SelectItem value="suspended">Suspendidos</SelectItem>
                       <SelectItem value="revoked">Revocados</SelectItem>
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+
+                <Select value={driverTierFilter} onValueChange={setDriverTierFilter}>
+                  <SelectTrigger aria-label="Filtrar taxistas por suscripción">
+                    <SelectValue placeholder="Plan" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      <SelectItem value="all">Todos los planes</SelectItem>
+                      <SelectItem value="free">Gratuito ($ 0)</SelectItem>
+                      <SelectItem value="no_ads">Sin publicidad ($ 2)</SelectItem>
+                      <SelectItem value="premium">Premium ($ 3)</SelectItem>
                     </SelectGroup>
                   </SelectContent>
                 </Select>
@@ -452,6 +470,7 @@ export function UsersManagementView() {
                         <TableHead>Modalidad</TableHead>
                         <TableHead>Vehículo y patente</TableHead>
                         <TableHead>Insignias</TableHead>
+                        <TableHead>Suscripción</TableHead>
                         <TableHead>Vencimiento habilitación</TableHead>
                         <TableHead>Estado</TableHead>
                         <TableHead className="text-right">Acciones</TableHead>
@@ -508,6 +527,24 @@ export function UsersManagementView() {
                                   Nivel 0
                                 </span>
                               )}
+                            </TableCell>
+                            <TableCell>
+                              {(() => {
+                                const tier: SubscriptionTier = prof?.subscription_tier ?? "free";
+                                return (
+                                  <Badge
+                                    variant={
+                                      tier === "premium"
+                                        ? "default"
+                                        : tier === "no_ads"
+                                          ? "secondary"
+                                          : "outline"
+                                    }
+                                  >
+                                    {formatSubscriptionTier(tier)}
+                                  </Badge>
+                                );
+                              })()}
                             </TableCell>
                             <TableCell>
                               <div className="flex flex-col gap-1">

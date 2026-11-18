@@ -253,22 +253,49 @@ export function AdsManagerView() {
     }
   }
 
-  async function togglePaid(banner: AdBanner) {
+  async function markPaidAndRenew30Days(banner: AdBanner) {
+    const today = todayISODate();
+    const currentEnd = banner.end_date.slice(0, 10);
+    const baseDate = currentEnd >= today ? currentEnd : today;
+    const renewedEnd = addDaysToISODate(baseDate, 30);
+
     const supabase = createClient();
     const { error } = await supabase
       .from("ad_banners")
-      .update({ is_paid: !banner.is_paid })
+      .update({
+        is_paid: true,
+        is_active: true,
+        end_date: renewedEnd,
+      })
+      .eq("id", banner.id);
+
+    if (error) {
+      toast.error("No pudimos registrar el pago de $ 3 USD.");
+      return;
+    }
+    toast.success(
+      `${banner.business_name}: pago $ 3 USD acreditado. Vigente hasta ${formatDateAR(renewedEnd)}.`
+    );
+    await loadBanners();
+  }
+
+  async function togglePaid(banner: AdBanner) {
+    if (!banner.is_paid) {
+      await markPaidAndRenew30Days(banner);
+      return;
+    }
+
+    const supabase = createClient();
+    const { error } = await supabase
+      .from("ad_banners")
+      .update({ is_paid: false })
       .eq("id", banner.id);
 
     if (error) {
       toast.error("No pudimos cambiar el estado de pago.");
       return;
     }
-    toast.success(
-      !banner.is_paid
-        ? `${banner.business_name} marcado como pagado ($ 3 USD).`
-        : `${banner.business_name} pasó a pago pendiente.`
-    );
+    toast.success(`${banner.business_name} pasó a pago pendiente.`);
     await loadBanners();
   }
 
@@ -453,19 +480,57 @@ export function AdsManagerView() {
                       </span>
                       <span className="font-semibold">{banner.clicks_count} clics</span>
                     </div>
+
+                    {/* Vista previa exacta en teléfono */}
+                    <div className="flex flex-col gap-1">
+                      <span className="text-[11px] font-medium text-muted-foreground">
+                        Vista previa en teléfono (Plan Gratuito)
+                      </span>
+                      <div className="flex items-center gap-2.5 rounded-xl border border-border bg-background p-2">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={banner.image_url}
+                          alt={`Miniatura ${banner.business_name}`}
+                          className="h-11 w-20 shrink-0 rounded-md object-cover bg-muted"
+                        />
+                        <div className="flex min-w-0 flex-1 flex-col">
+                          <span className="truncate text-xs font-bold text-foreground">
+                            {banner.business_name}
+                          </span>
+                          <span className="text-[10px] text-muted-foreground">
+                            Comercio local · {banner.action_type === "whatsapp" ? "Abrir WhatsApp" : "Ver sitio"}
+                          </span>
+                        </div>
+                        <span className="shrink-0 rounded-full bg-primary/15 px-2 py-0.5 text-[10px] font-semibold text-foreground">
+                          Quitar anuncios
+                        </span>
+                      </div>
+                    </div>
                   </CardContent>
                 </div>
 
-                <div className="flex items-center justify-between gap-2 border-t border-border px-4 py-3">
-                  <Button
-                    type="button"
-                    size="sm"
-                    variant="outline"
-                    onClick={() => togglePaid(banner)}
-                  >
-                    <CheckCircle2Icon data-icon="inline-start" />
-                    {banner.is_paid ? "Marcar impago" : "Marcar pagado"}
-                  </Button>
+                <div className="flex flex-wrap items-center justify-between gap-2 border-t border-border px-4 py-3">
+                  <div className="flex items-center gap-1.5">
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant={banner.is_paid && !isExpired ? "outline" : "default"}
+                      onClick={() => markPaidAndRenew30Days(banner)}
+                    >
+                      <CheckCircle2Icon data-icon="inline-start" />
+                      {banner.is_paid ? "Renovar +30 d" : "Acreditar $ 3 (+30 d)"}
+                    </Button>
+                    {banner.is_paid ? (
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => togglePaid(banner)}
+                      >
+                        Impago
+                      </Button>
+                    ) : null}
+                  </div>
                   <div className="flex items-center gap-2">
                     <span className="text-xs text-muted-foreground">Visible</span>
                     <Switch
@@ -566,6 +631,32 @@ export function AdsManagerView() {
                 <FieldDescription>
                   Formato horizontal recomendado (16:5 o 3:1), hasta 4 MB.
                 </FieldDescription>
+                {imageUrl ? (
+                  <div className="mt-2 flex flex-col gap-1.5 rounded-xl border border-border bg-background p-2.5">
+                    <span className="text-[11px] font-medium text-muted-foreground">
+                      Vista previa tal como se ve en la app
+                    </span>
+                    <div className="flex items-center gap-3 rounded-lg border border-border bg-card p-2">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={imageUrl}
+                        alt="Vista previa móvil"
+                        className="h-12 w-24 shrink-0 rounded-md object-cover bg-muted"
+                      />
+                      <div className="flex min-w-0 flex-1 flex-col">
+                        <span className="truncate text-xs font-bold">
+                          {businessName.trim() || "Nombre del comercio"}
+                        </span>
+                        <span className="text-[11px] text-muted-foreground">
+                          {actionType === "whatsapp" ? "Abre WhatsApp directo" : "Abre enlace web"}
+                        </span>
+                      </div>
+                      <span className="shrink-0 rounded-full bg-primary/15 px-2 py-0.5 text-[10px] font-semibold">
+                        Quitar anuncios
+                      </span>
+                    </div>
+                  </div>
+                ) : null}
               </Field>
 
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
